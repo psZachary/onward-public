@@ -1,7 +1,6 @@
 #include <iostream>
 #include <Windows.h>
 #include "min/include/MinHook.h"
-#include "hack.h"
 #include "hook.h"
 #include "icallable.h"
 #include "class.h"

@@ -65,9 +65,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="hack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="main.h">
       <Filter>Header Files</Filter>
     </ClInclude>

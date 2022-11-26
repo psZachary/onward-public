@@ -187,7 +187,6 @@
   <ItemGroup>
     <ClInclude Include="class.h" />
     <ClInclude Include="cvar.h" />
-    <ClInclude Include="hack.h" />
     <ClInclude Include="icallable.h" />
     <ClInclude Include="hook.h" />
     <ClInclude Include="il2cpp.h" />
