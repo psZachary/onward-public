@@ -9,21 +9,6 @@
 using p_GetMainCamera = uintptr_t(__cdecl*)();
 static p_GetMainCamera get_main_camera = 0;
 
-//using p_DrawLine = uintptr_t(__cdecl*)(uintptr_t, unity::vector, unity::vector, ImColor);
-//static p_DrawLine draw_line = 0;
-
-/*
-
-		_
-	   (_)
- ____   _   ____   ____  _____   ____
-|  _ \ | | / _  | / _  || ___ | / ___)
-| | | || |( (_| |( (_| || ____|| |
-|_| |_||_| \___ | \___ ||_____)|_|
-		  (_____|(_____|
-
-
-*/
 using p_GetComponentTransform = uintptr_t(__cdecl*)(uintptr_t);
 static p_GetComponentTransform get_component_transform = 0;
 
