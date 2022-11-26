@@ -7,8 +7,11 @@
 #include "class.h"
 
 int main() {
-    initialize_hacks();
+    //initialize_hacks();
 
+    AllocConsole();
+    FILE* f = nullptr;
+    freopen_s(&f, "CONOUT$", "w", stdout);
    
     hook_dx11();
 

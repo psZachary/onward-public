@@ -115,44 +115,58 @@ static int h_GetFireMode(uintptr_t _this) {
 using p_Pickup_Gun_Awake = void(__stdcall*)(uintptr_t);
 p_Pickup_Gun_Awake i_Pickup_Gun_Awake = 0;
 static void h_Pickup_Gun_Awake(uintptr_t _this) {
-    uintptr_t weapon_so = *(uintptr_t*)(_this + 0x338);
-    uintptr_t weapon_data = *(uintptr_t*)(_this + 0x20);
-    uintptr_t weapon_info = *(uintptr_t*)(weapon_so + 0x58);
-    uintptr_t weapon = *(uintptr_t*)(_this + 0x340);
+    uintptr_t weapon_so = *(uintptr_t*)(_this + 0x368);
+    uintptr_t weapon_info = *(uintptr_t*)(weapon_so + 0x80);
+    uintptr_t weapon = *(uintptr_t*)(_this + 0x370);
+    uintptr_t weapon_data = *(uintptr_t*)(weapon + 0xD8);
 
-
-
+    printf("Crashed on me! \n");
     if (cvar::weapon::infinite_ammo) {
         // works for RPG 
-        *(int*)(weapon + 0xB4) = 99999;
-        *(int*)(weapon + 0xFC) = 99999;
+        *(int*)(weapon + 0xA4) = 9999;
+        //*(int*)(weapon + 0xFC) = 99999;
     }
+    printf("Crashed on me! 2 \n");
+
     if (cvar::weapon::no_kickback) {
-        // remove weapon kickback
-        *(float*)(weapon_so + 0xC8) = 0;
-        *(float*)(weapon_so + 0xCC) = 0;
+        // 	public float RecoilKickBackMin; // 0xF0
+        // public float RecoilKickBackMax; // 0xF4
+        *(float*)(weapon_so + 0xF0) = 0.01f;
+        *(float*)(weapon_so + 0xF4) = 0.01f;
     }
+    printf("Crashed on me! 3 \n");
 
     if (cvar::weapon::no_spread) {
         // remove spread
-        *(float*)(weapon_so + 0xB8) = 0;
+        *(float*)(weapon_so + 0xE0) = 0;
     }
+    printf("Crashed on me! 4 \n");
 
     if (cvar::weapon::no_recoil) {
         // removed recoil
-        *(bool*)(weapon_so + 0xC2) = 0;
+        // 	public bool HasRecoil; // 0xEA
+        *(bool*)(weapon_so + 0xEA) = 0;
+
         *(float*)(weapon_so + 0xD8) = 0;
     }
 
-    *(int*)(weapon_so + 0x18) = 0;
+    printf("Crashed on me! 5 \n");
 
+    //public int WeaponCost; // 0x40
+    *(int*)(weapon_so + 0x40) = 0;
+    printf("Crashed on me! 6 \n");
 
-    *(float*)(weapon_so + 0xB0) *= cvar::weapon::fire_rate_multiplier;
+    // 	public float RateOfFire; // 0xD8
+    *(float*)(weapon_so + 0xD8) *= cvar::weapon::fire_rate_multiplier;
+    printf("Crashed on me! 7 \n");
 
+    // 	public int MagazineCapacity; // 0x120
+    // public int StartingMagCount; // 0x124
+    printf("Crashed on me! 8 \n");
 
     if (cvar::weapon::infinite_ammo) {
-        *(int*)(weapon_so + 0xF8) = 9999;
-        *(int*)(weapon_so + 0xFC) = 9999;
+        *(int*)(weapon_so + 0x120) = 9999;
+        *(int*)(weapon_so + 0x124) = 9999;
     }
 
 
@@ -195,17 +209,16 @@ static float h_GetCurrentHealth(uintptr_t _this) {
 }
 
 
-using p_Movement_Update = vec3(__stdcall*)(uintptr_t, vec3*, float, float);
+using p_Movement_Update = vec3(__stdcall*)(uintptr_t _this, float move_speed);
 p_Movement_Update i_Movement_Update = 0;
-static vec3 h_Movement_Update(uintptr_t _this, vec3* f_vector, float move_speed, float strafe_amount) {
-    cached_local_wps = *(uintptr_t*)(_this + 0x288);
+static vec3 h_Movement_Update(uintptr_t _this, float move_speed) {
 
 
 
 
 
     move_speed *= cvar::misc::movement_speed_multiplier;
-    return i_Movement_Update(_this, f_vector, move_speed, strafe_amount);
+    return i_Movement_Update(_this, move_speed);
 }
 
 using p_FlashMe = void(__stdcall*)(uintptr_t);
@@ -223,8 +236,8 @@ using p_LaserStart = void(__stdcall*)(uintptr_t);
 p_LaserStart i_LaserStart = 0;
 static void h_LaserStart(uintptr_t _this) {
     if (cvar::visuals::bright_laser) {
-        *(bool*)(_this + 0x4A) = true;
-        *(bool*)(_this + 0x10C) = true;
+        *(bool*)(_this + 0x48) = true;
+        *(bool*)(_this + 0x38) = true;
         *(bool*)(_this + 0x25) = false;
         *(float*)(_this + 0x90) = 9999;
         *(float*)(_this + 0x94) = 0.01f;
@@ -242,7 +255,7 @@ using p_TaserStart = void(__stdcall*)(uintptr_t);
 p_TaserStart i_TaserStart = 0;
 static void h_TaserStart(uintptr_t _this) {
     if (cvar::weapon::infinite_ammo) {
-        *(int*)(_this + 0x38C) = 9999;
+        *(int*)(_this + 0x3BC) = 9999;
     }
     return i_TaserStart(_this);
 }
@@ -252,69 +265,69 @@ static std::tuple<int, MH_STATUS> initialize_hooks(uintptr_t mod) {
     auto stat = MH_Initialize();
     if (stat != MH_STATUS::MH_ERROR_ALREADY_INITIALIZED)
         failcheck(stat);
-    
+
     // public class Pickup_Gun : Pickup (Awake)
-    stat = MH_CreateHook((void*)(mod + 0x66D390), &h_Pickup_Gun_Awake, reinterpret_cast<LPVOID*>(&i_Pickup_Gun_Awake));
+    stat = MH_CreateHook((void*)(mod + 0x413590), &h_Pickup_Gun_Awake, reinterpret_cast<LPVOID*>(&i_Pickup_Gun_Awake));
     failcheck(stat);
-    stat = MH_EnableHook((void*)(mod + 0x66D390));
+    stat = MH_EnableHook((void*)(mod + 0x413590));
     failcheck(stat);
 
     // protected bool GetUpdatedOutlineActive() { }
-    stat = MH_CreateHook((void*)(mod + 0x63FB70), &h_GetUpdatedOutlineActive, reinterpret_cast<LPVOID*>(&i_GetUpdatedOutlineActive));
+    stat = MH_CreateHook((void*)(mod + 0x4D5530), &h_GetUpdatedOutlineActive, reinterpret_cast<LPVOID*>(&i_GetUpdatedOutlineActive));
     failcheck(stat);
-    stat = MH_EnableHook((void*)(mod + 0x63FB70));
+    stat = MH_EnableHook((void*)(mod + 0x4D5530));
     failcheck(stat);
 
-    // private Vector3 MovePlayer(Vector3 forwardVector, float movvisualseed, float strafeAmount) { }
-    stat = MH_CreateHook((void*)(mod + 0x5656D0), &h_Movement_Update, reinterpret_cast<LPVOID*>(&i_Movement_Update));
+    // private Vector3 MovePlayer(float) { }
+    stat = MH_CreateHook((void*)(mod + 0x4A2340), &h_Movement_Update, reinterpret_cast<LPVOID*>(&i_Movement_Update));
     failcheck(stat);
-    stat = MH_EnableHook((void*)(mod + 0x5656D0));
+    stat = MH_EnableHook((void*)(mod + 0x4A2340));
     failcheck(stat);
 
     // public int GetConsumedPoints() { }
-    stat = MH_CreateHook((void*)(mod + 0x8A7150), &h_Get_Point_Cost, reinterpret_cast<LPVOID*>(&i_Get_Point_Cost));
+    stat = MH_CreateHook((void*)(mod + 0x5E3A10), &h_Get_Point_Cost, reinterpret_cast<LPVOID*>(&i_Get_Point_Cost));
     failcheck(stat);
-    stat = MH_EnableHook((void*)(mod + 0x8A7150));
+    stat = MH_EnableHook((void*)(mod + 0x5E3A10));
     failcheck(stat);
 
     // public void FlashMe() { }
-    stat = MH_CreateHook((void*)(mod + 0x1DE2670), &h_FlashMe, reinterpret_cast<LPVOID*>(&i_FlashMe));
+    stat = MH_CreateHook((void*)(mod + 0x3810D0), &h_FlashMe, reinterpret_cast<LPVOID*>(&i_FlashMe));
     failcheck(stat);
-    stat = MH_EnableHook((void*)(mod + 0x1DE2670));
+    stat = MH_EnableHook((void*)(mod + 0x3810D0));
     failcheck(stat);
 
 
     //protected Color GetUpdatedOutlineColor() { }
-    stat = MH_CreateHook((void*)(mod + 0x640220), &h_GetUpdatedOutlineColor, reinterpret_cast<LPVOID*>(&i_GetUpdatedOutlineColor));
+    stat = MH_CreateHook((void*)(mod + 0x4D5BE0), &h_GetUpdatedOutlineColor, reinterpret_cast<LPVOID*>(&i_GetUpdatedOutlineColor));
     failcheck(stat);
-    stat = MH_EnableHook((void*)(mod + 0x640220));
+    stat = MH_EnableHook((void*)(mod + 0x4D5BE0));
     failcheck(stat);
 
     // public float get_CurrentHealth() { }
-    stat = MH_CreateHook((void*)(mod + 0x1DED580), &h_GetCurrentHealth, reinterpret_cast<LPVOID*>(&i_GetCurrentHealth));
+    stat = MH_CreateHook((void*)(mod + 0x38F9A0), &h_GetCurrentHealth, reinterpret_cast<LPVOID*>(&i_GetCurrentHealth));
     failcheck(stat);
-    stat = MH_EnableHook((void*)(mod + 0x1DED580));
+    stat = MH_EnableHook((void*)(mod + 0x38F9A0));
     failcheck(stat);
 
     // public Firemode get_CurrentFiremode() { }
-    stat = MH_CreateHook((void*)(mod + 0x677E90), &h_GetFireMode, reinterpret_cast<LPVOID*>(&i_GetFireMode));
+    stat = MH_CreateHook((void*)(mod + 0x41F940), &h_GetFireMode, reinterpret_cast<LPVOID*>(&i_GetFireMode));
     failcheck(stat);
-    stat = MH_EnableHook((void*)(mod + 0x677E90));
+    stat = MH_EnableHook((void*)(mod + 0x41F940));
     failcheck(stat);
-    
-    
+
+
     // public override void OnStart() { }public class Pickup_Taser : Pickup 
-    stat = MH_CreateHook((void*)(mod + 0x2C13E0), &h_TaserStart, reinterpret_cast<LPVOID*>(&i_TaserStart));
+    stat = MH_CreateHook((void*)(mod + 0x4BAEB0), &h_TaserStart, reinterpret_cast<LPVOID*>(&i_TaserStart));
     failcheck(stat);
-    stat = MH_EnableHook((void*)(mod + 0x2C13E0));
+    stat = MH_EnableHook((void*)(mod + 0x4BAEB0));
     failcheck(stat);
 
     // private void Start() { } public class BasicLaser_v2 : MonoBehaviour
-    stat = MH_CreateHook((void*)(mod + 0x95EE80), &h_LaserStart, reinterpret_cast<LPVOID*>(&i_LaserStart));
+    stat = MH_CreateHook((void*)(mod + 0xC8DEC0), &h_LaserStart, reinterpret_cast<LPVOID*>(&i_LaserStart));
     failcheck(stat);
-    stat = MH_EnableHook((void*)(mod + 0x95EE80));
+    stat = MH_EnableHook((void*)(mod + 0xC8DEC0));
     failcheck(stat);
-    
+
 
     return std::tuple<int, MH_STATUS>(0, MH_OK);
 }
